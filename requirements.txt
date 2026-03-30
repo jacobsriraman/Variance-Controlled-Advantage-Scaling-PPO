@@ -1,0 +1,7 @@
+gymnasium>=1.0.0
+numpy>=1.26
+torch>=2.2
+pandas>=2.0
+tqdm>=4.66
+matplotlib>=3.8
+
