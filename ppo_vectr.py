@@ -241,8 +241,7 @@ class PPOTrainer:
         values = rollout["values"]
         dones = rollout["dones"]
         last_value = float(rollout["last_value"][0])
-
-       advantages, returns = self.compute_gae(rewards, values, dones, last_value)
+        advantages, returns = self.compute_gae(rewards, values, dones, last_value)
 
         # ===== VECTR Advantage Variance Scaling =====
         if self.cfg.use_vectr:
