@@ -9,6 +9,7 @@ import gymnasium as gym
 import numpy as np
 import pandas as pd
 from gymnasium.wrappers import RecordEpisodeStatistics
+import sys
 from tqdm import trange
 
 from datetime import datetime
