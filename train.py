@@ -123,7 +123,7 @@ def main():
 
     # trange = tqdm progress bar ----- that's what we see in .out file:
     history = []
-    for update in trange(args.total_updates, desc="updates"):
+    for update in trange(args.total_updates, desc="updates", file=sys.stdout):
         # This does one full PPO iteration: collect trajectories, compute advantages (GAE), apply scaling (VERY important for your project), update policy + value network
         metrics = trainer.train_one_update()
         # Storing metrics
@@ -132,7 +132,14 @@ def main():
         history.append(metrics)
 
         if (update + 1) % 10 == 0:
-            print(locals().keys())
+            print(
+                f"[u {metrics['update'] + 1}] "
+                f"ret={metrics['episode_return_mean']:.2f} "
+                f"adv_var={metrics['advantage_var']:.3f} "
+                f"kl={metrics['approx_kl']:.4f} "
+                f"gn={metrics['grad_norm']:.2f}",
+                flush=True
+                )
             df = pd.DataFrame(history)
             df.to_csv(run_dir / "metrics.csv", index=False)
             trainer.save(str(run_dir / "policy.pt"))
