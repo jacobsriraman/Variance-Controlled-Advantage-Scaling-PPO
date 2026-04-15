@@ -121,14 +121,18 @@ def main():
     with open(run_dir / "config.json", "w") as f:
         json.dump(vars(args), f, indent=2)
 
+    # trange = tqdm progress bar ----- that's what we see in .out file:
     history = []
     for update in trange(args.total_updates, desc="updates"):
+        # This does one full PPO iteration: collect trajectories, compute advantages (GAE), apply scaling (VERY important for your project), update policy + value network
         metrics = trainer.train_one_update()
+        # Storing metrics
         metrics["update"] = update
         metrics["global_step"] = trainer.global_step
         history.append(metrics)
 
         if (update + 1) % 10 == 0:
+            print(locals().keys())
             df = pd.DataFrame(history)
             df.to_csv(run_dir / "metrics.csv", index=False)
             trainer.save(str(run_dir / "policy.pt"))
