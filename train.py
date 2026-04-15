@@ -11,6 +11,8 @@ import pandas as pd
 from gymnasium.wrappers import RecordEpisodeStatistics
 from tqdm import trange
 
+from datetime import datetime
+
 from ppo_vectr import PPOConfig, PPOTrainer
 from reward_transforms import RewardTransformConfig
 
@@ -61,7 +63,24 @@ def parse_args():
 
 def main():
     args = parse_args()
-    run_dir = Path(args.outdir) / args.env_id / f"{args.reward_transform}_seed{args.seed}"
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Build method name
+    if args.use_vectr:
+        method_name = f"vectr_std{args.vectr_target_std}"
+    else:
+        method_name = args.reward_transform
+
+    run_dir = (
+        Path(args.outdir)
+        / args.env_id
+        / method_name
+        / f"seed{args.seed}_{timestamp}"
+    )
+
+
+
     run_dir.mkdir(parents=True, exist_ok=True)
 
     env = make_env(args.env_id, seed=args.seed)
@@ -94,6 +113,10 @@ def main():
     )
 
     trainer = PPOTrainer(env, obs_dim, action_space, cfg)
+
+    config_dict = vars(args)
+    config_dict["method_name"] = method_name
+    config_dict["timestamp"] = timestamp
 
     with open(run_dir / "config.json", "w") as f:
         json.dump(vars(args), f, indent=2)
