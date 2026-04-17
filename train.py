@@ -73,14 +73,14 @@ def main():
     else:
         method_name = args.reward_transform
 
+    job_id = os.environ.get("SLURM_JOB_ID", "nojob")
+    
     run_dir = (
         Path(args.outdir)
         / args.env_id
         / method_name
-        / f"seed{args.seed}_{timestamp}"
+        / f"seed{args.seed}_job{job_id}_{timestamp}"
     )
-
-
 
     run_dir.mkdir(parents=True, exist_ok=True)
 
