@@ -89,6 +89,26 @@ def build_method_name(args) -> str:
         # if a new transform is added later this still produces a unique name.
         return transform
 
+def evaluate_policy(policy, env_id, n_episodes=5, seed=0):
+    env = gym.make(env_id)
+    returns = []
+
+    for ep in range(n_episodes):
+        obs, _ = env.reset(seed=seed + ep)
+        done = False
+        ep_ret = 0
+
+        while not done:
+            action = policy.act(obs, deterministic=True)
+            obs, reward, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
+            ep_ret += reward
+
+        returns.append(ep_ret)
+
+    env.close()
+    return np.mean(returns), np.std(returns)
+
 
 def main():
     args = parse_args()
@@ -164,6 +184,11 @@ def main():
                 f"gn={metrics['grad_norm']:.2f}",
                 flush=True
                 )
+
+            eval_mean, eval_std = evaluate_policy(trainer.policy, args.env_id, n_episodes=5, seed=args.seed)
+            metrics["eval_return_mean"] = eval_mean
+            metrics["eval_return_std"] = eval_std
+            
             df = pd.DataFrame(history)
             df.to_csv(run_dir / "metrics.csv", index=False)
             trainer.save(str(run_dir / "policy.pt"))
