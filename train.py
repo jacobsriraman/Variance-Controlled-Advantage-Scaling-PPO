@@ -47,7 +47,6 @@ def parse_args():
     p.add_argument("--use-vectr", action="store_true")
     p.add_argument("--vectr-target-std", type=float, default=1.0)
 
-
     p.add_argument(
         "--reward-transform",
         type=str,
@@ -62,19 +61,43 @@ def parse_args():
     return p.parse_args()
 
 
+def build_method_name(args) -> str:
+    """
+    Build a method name that encodes every hyperparameter that distinguishes
+    this run's reward configuration, so that no two differently-configured
+    runs ever resolve to the same folder.
+    """
+    if args.use_vectr:
+        return f"vectr_std{args.vectr_target_std}"
+
+    transform = args.reward_transform
+
+    if transform == "identity":
+        return "identity"
+    elif transform == "scale":
+        return f"scale_{args.reward_scale}"
+    elif transform == "zscore":
+        # zscore has no extra hyperparameters currently, but include the
+        # target_std in case it is ever wired up — keeps folders distinct.
+        return f"zscore_std{args.reward_target_std}"
+    elif transform == "minmax":
+        return "minmax"
+    elif transform == "tanh":
+        return f"tanh_gain{args.reward_tanh_gain}"
+    else:
+        # Fallback: should never be reached given argparse choices, but
+        # if a new transform is added later this still produces a unique name.
+        return transform
+
+
 def main():
     args = parse_args()
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    # Build method name
-    if args.use_vectr:
-        method_name = f"vectr_std{args.vectr_target_std}"
-    else:
-        method_name = args.reward_transform
+    method_name = build_method_name(args)
 
     job_id = os.environ.get("SLURM_JOB_ID", "nojob")
-    
+
     run_dir = (
         Path(args.outdir)
         / args.env_id
@@ -155,4 +178,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
