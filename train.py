@@ -198,12 +198,12 @@ def main():
             
             print(
                 f"[u {metrics['update'] + 1}] "
-                f"ret={metrics['episode_return_mean']:.2f} "
-                f"adv_var={metrics['advantage_var']:.3f} "
+                f"Ep Return Mean={metrics['episode_return_mean']:.2f} "
+                f"Adv Var={metrics['advantage_var']:.3f} "
                 f"kl={metrics['approx_kl']:.4f} "
-                f"gn={metrics['grad_norm']:.2f}",
-                f"gn={metrics['eval_return_mean']:.2f}",
-                f"gn={metrics['eval_return_std']:.2f}",
+                f"Grad Norm={metrics['grad_norm']:.2f}",
+                f"Eval Return Mean={metrics['eval_return_mean']:.2f}",
+                f"Eval Return std={metrics['eval_return_std']:.2f}",
                 flush=True
                 )
 
