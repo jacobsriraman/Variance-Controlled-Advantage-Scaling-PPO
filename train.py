@@ -89,17 +89,20 @@ def build_method_name(args) -> str:
         # if a new transform is added later this still produces a unique name.
         return transform
 
-def evaluate_policy(policy, env_id, n_episodes=5, seed=0):
+def evaluate_policy(model, env_id, device, n_episodes=5, seed=0):
     env = gym.make(env_id)
     returns = []
+
+    model.eval()
 
     for ep in range(n_episodes):
         obs, _ = env.reset(seed=seed + ep)
         done = False
-        ep_ret = 0
+        ep_ret = 0.0
 
         while not done:
-            action = policy.act(obs, deterministic=True)
+            action = model.act(obs, deterministic=True)
+
             obs, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
             ep_ret += reward
@@ -177,18 +180,29 @@ def main():
         history.append(metrics)
 
         if (update + 1) % 10 == 0:
+            
+            eval_mean, eval_std = evaluate_policy(
+            trainer.model,        
+            args.env_id,
+            trainer.device,
+            n_episodes=5,
+            seed=args.seed + 1000
+            )
+            
+            metrics["eval_return_mean"] = eval_mean
+            metrics["eval_return_std"] = eval_std
+            
             print(
                 f"[u {metrics['update'] + 1}] "
                 f"ret={metrics['episode_return_mean']:.2f} "
                 f"adv_var={metrics['advantage_var']:.3f} "
                 f"kl={metrics['approx_kl']:.4f} "
                 f"gn={metrics['grad_norm']:.2f}",
+                f"gn={metrics['eval_return_mean']:.2f}",
+                f"gn={metrics['eval_return_std']:.2f}",
                 flush=True
                 )
 
-            eval_mean, eval_std = evaluate_policy(trainer.model, args.env_id, n_episodes=5, seed=args.seed)
-            metrics["eval_return_mean"] = eval_mean
-            metrics["eval_return_std"] = eval_std
             
             df = pd.DataFrame(history)
             df.to_csv(run_dir / "metrics.csv", index=False)
