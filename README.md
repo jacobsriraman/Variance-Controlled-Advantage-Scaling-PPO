@@ -19,7 +19,7 @@ The implementation supports three versions of the algorithm for model training:
 1. Baseline
 
 ```
-python train.py --reward-transformation identity
+python train.py --reward-transform identity
 
 ```
 
