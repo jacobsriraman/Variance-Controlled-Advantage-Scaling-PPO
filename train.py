@@ -17,6 +17,7 @@ from datetime import datetime
 from ppo_vectr import PPOConfig, PPOTrainer
 from reward_transforms import RewardTransformConfig
 
+import torch
 
 def make_env(env_id: str, seed: int | None = None):
     env = gym.make(env_id)
@@ -101,7 +102,11 @@ def evaluate_policy(model, env_id, device, n_episodes=5, seed=0):
         ep_ret = 0.0
 
         while not done:
-            action = model.act(obs, deterministic=True)
+            obs_t = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+
+            with torch.no_grad():
+                logits = model.actor(obs_t)
+                action = torch.argmax(logits, dim=-1).item()
 
             obs, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
@@ -111,7 +116,6 @@ def evaluate_policy(model, env_id, device, n_episodes=5, seed=0):
 
     env.close()
     return np.mean(returns), np.std(returns)
-
 
 def main():
     args = parse_args()
