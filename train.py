@@ -160,7 +160,7 @@ def main():
     )
 
     trainer = PPOTrainer(env, obs_dim, action_space, cfg)
-    print([attr for attr in dir(trainer.model) if not attr.startswith("_")])
+    #print([attr for attr in dir(trainer.model) if not attr.startswith("_")])
 
     config_dict = vars(args)
     config_dict["method_name"] = method_name
