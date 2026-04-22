@@ -157,7 +157,7 @@ def main():
     )
 
     trainer = PPOTrainer(env, obs_dim, action_space, cfg)
-    print(dir(trainer))
+    print([attr for attr in dir(trainer.model) if not attr.startswith("_")])
 
     config_dict = vars(args)
     config_dict["method_name"] = method_name
@@ -186,7 +186,7 @@ def main():
                 flush=True
                 )
 
-            eval_mean, eval_std = evaluate_policy(trainer.policy, args.env_id, n_episodes=5, seed=args.seed)
+            eval_mean, eval_std = evaluate_policy(trainer.model, args.env_id, n_episodes=5, seed=args.seed)
             metrics["eval_return_mean"] = eval_mean
             metrics["eval_return_std"] = eval_std
             
