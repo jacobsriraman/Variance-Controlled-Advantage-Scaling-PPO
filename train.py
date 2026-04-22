@@ -157,6 +157,7 @@ def main():
     )
 
     trainer = PPOTrainer(env, obs_dim, action_space, cfg)
+    print(dir(trainer))
 
     config_dict = vars(args)
     config_dict["method_name"] = method_name
