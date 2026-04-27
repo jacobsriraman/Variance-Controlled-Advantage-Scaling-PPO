@@ -164,6 +164,7 @@ def main():
     )
 
     trainer = PPOTrainer(env, obs_dim, action_space, cfg)
+    print(trainer.model)
     #print([attr for attr in dir(trainer.model) if not attr.startswith("_")])
 
     config_dict = vars(args)
